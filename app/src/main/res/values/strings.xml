@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">FileManagerDemo</string>
+    <string name="is_not_directory">非資料夾</string>
+    <string name="can_not_read">無法讀取</string>
+    <string name="input_dir_name">請輸入資料夾名稱</string>
+    <string name="ok">好</string>
+    <string name="create_dir_success">成功建立資料夾:\n</string>
+    <string name="create_dir_fail">無法建立資料夾</string>
+    <string name="new_dir">新增資料夾</string>
+    <string name="del_file">刪除檔案</string>
+    <string name="modify_name">修改名稱</string>
+    <string name="cancel">否</string>
+</resources>
