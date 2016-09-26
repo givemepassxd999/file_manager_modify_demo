@@ -86,13 +86,20 @@ public class MainActivity extends AppCompatActivity {
         });
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 new AlertDialog.Builder(MainActivity.this)
                         .setItems(ACTION, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                String name = ACTION[which];
-                                Toast.makeText(MainActivity.this, name, Toast.LENGTH_SHORT).show();
+                                String path = paths.get(position);
+                                switch(which){
+                                    case 0:
+                                        rename(path);
+                                        break;
+                                    case 1:
+                                        delFile(path);
+                                        break;
+                                }
                             }
                         })
                         .show();
@@ -108,24 +115,58 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void modifyName() {
-
+    private void rename(final String path) {
+        final View item = LayoutInflater.from(MainActivity.this).inflate(R.layout.add_new_dir, null);
+        new AlertDialog.Builder(MainActivity.this)
+            .setTitle(R.string.input_you_rename)
+            .setView(item)
+            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    EditText editText = (EditText) item.findViewById(R.id.edittext);
+                    if(editText.getText().equals("")){
+                        Toast.makeText(MainActivity.this, R.string.input_dir_name, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    String newPath = nowPath + File.separator + editText.getText();
+                    File f = new File(path);
+                    if(f.renameTo(new File(newPath))){
+                        Toast.makeText(MainActivity.this, R.string.modify_success, Toast.LENGTH_SHORT).show();
+                        getFileDirectory(nowPath);
+                        simpleAdapter.notifyDataSetChanged();
+                    } else{
+                        Toast.makeText(MainActivity.this, R.string.modify_fail, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            })
+            .show();
     }
 
-    private void delFile() {
+    private void delFile(final String path) {
         new AlertDialog.Builder(MainActivity.this)
-            .setTitle("確定要刪除此檔案/資料夾?")
-            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            .setTitle(R.string.make_sure_del)
+            .setNegativeButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    File file = new File(path);
+                    if(file.exists()){
+                        if(file.delete()){
+                            Toast.makeText(MainActivity.this, R.string.del_success, Toast.LENGTH_SHORT).show();
+                            getFileDirectory(nowPath);
+                            simpleAdapter.notifyDataSetChanged();
+                        } else{
+                            Toast.makeText(MainActivity.this, R.string.del_fail, Toast.LENGTH_SHORT).show();
+                        }
+                    } else{
+                        Toast.makeText(MainActivity.this, R.string.file_is_not_exist, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }).setPositiveButton(R.string.cancel, new DialogInterface.OnClickListener(){
+
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
                 }
-            }).setPositiveButton(R.string.cancel, new DialogInterface.OnClickListener(){
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-            }
             })
             .show();
     }
@@ -139,11 +180,12 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     EditText editText = (EditText) item.findViewById(R.id.edittext);
-                    if(editText.getText().equals("")){return;}
+                    if(editText.getText().equals("")){
+                        Toast.makeText(MainActivity.this, R.string.input_dir_name, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     String filePath = nowPath + File.separator + editText.getText().toString();
                     File f = new File(filePath);
-                    Toast.makeText(MainActivity.this, filePath, Toast.LENGTH_SHORT).show();
-
                     if(f.mkdir()){
                         Toast.makeText(MainActivity.this, getString(R.string.create_dir_success) + filePath, Toast.LENGTH_SHORT).show();
                         getFileDirectory(nowPath);
